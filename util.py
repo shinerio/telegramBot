@@ -22,6 +22,9 @@ def upload_image(key_cache, message, photo):
     key = key_cache[message.chat.id]
     auth = oss2.Auth(key['aki'], key['aks'])
     file_name = message.document.file_name.encode('utf-8')
+    if "name" in key:
+        file_name = key["name"]
+        del key["name"]
     if "path" in key:
         file_name = key["path"]+"/"+file_name
     # Endpoint以杭州为例，其它Region请按实际情况填写。

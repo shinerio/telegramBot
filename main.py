@@ -51,6 +51,19 @@ def send_AKS(message):
     bot.send_message(message.chat.id, 'AccessKeySecret设置成功!')
 
 
+@bot.message_handler(commands=['setname'])
+def set_imagepath(message):
+    image_name = str(message.text).replace('/setname', '').strip()
+    reg = "(?i).+?\\.(jpg|gif|bmp|png|jpeg)"
+    ret = re.match(reg, image_name, flags=0)
+    if ret is None:  # oss error
+        bot.send_message(reply_to_message_id=message.message_id, chat_id=message.chat.id, text="图片名字不合法（需包括后缀）")
+        return
+    else:
+        key_cache[message.chat.id]["name"] = image_name
+    bot.send_message(reply_to_message_id=message.message_id, chat_id=message.chat.id, text='图片已命名，仅生效一次')
+
+
 @bot.message_handler(commands=['setpath'])
 def set_imagepath(message):
     image_path = str(message.text).replace('/setpath', '').strip()
