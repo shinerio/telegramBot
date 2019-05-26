@@ -25,11 +25,9 @@ def upload_image(key_cache, message, photo):
     if "name" in key:
         file_name = key["name"]
         del key["name"]
-    if "path" in key:
+    if "path" in key and key["path"]!="":
         file_name = key["path"]+"/"+file_name
-    # Endpoint以杭州为例，其它Region请按实际情况填写。
     bucket = oss2.Bucket(auth, key['ep'], key['bk'])
-    # requests.get返回的是一个可迭代对象（Iterable），此时Python SDK会通过Chunked Encoding方式上传。
     try:
         exist = bucket.object_exists(file_name)
         if exist:
@@ -39,5 +37,29 @@ def upload_image(key_cache, message, photo):
         tmp = key['ep'].replace('https://', '').replace('http://', '')
         url = "https://" + key['bk'] + "." + tmp + "/" + file_name
         return url
+    except oss2.exceptions.ServerError:
+        return '请检查oss配置是否正确'
+
+
+def get_dir(key_cache, message):
+    ret = []
+    key = key_cache[message.chat.id]
+    auth = oss2.Auth(key['aki'], key['aks'])
+    bucket = oss2.Bucket(auth, key['ep'], key['bk'])
+    dir = message.text.encode('utf-8').replace('/list', '').strip()
+    dir = None if dir == "" else dir
+    try:
+        for obj in oss2.ObjectIterator(bucket):
+            if obj.key.endswith("/"):
+                if dir is None:
+                    ret.append(obj.key)
+                elif obj.key.startswith(dir):
+                    ret.append(obj.key)
+        if len(ret) == 0:
+            return "empty!"
+        tmp=""
+        for item in ret:
+            tmp = tmp+item+"\n"
+        return tmp
     except oss2.exceptions.ServerError:
         return '请检查oss配置是否正确'

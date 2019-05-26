@@ -24,6 +24,7 @@ nohup python main.py
 - [x] 上传config文件设置oss配置
 - [x] 图片上传路径优化
 - [x] 覆盖提醒
+- [x] 图片改名
 - [ ] 配置持久化
 - [ ] 图片批量上传
-- [ ] 列出bucket目录选择上传路径
+- [x] 列出bucket目录选择上传路径

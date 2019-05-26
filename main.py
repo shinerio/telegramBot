@@ -5,7 +5,7 @@ import requests
 from config import TOKEN
 bot = telebot.TeleBot(TOKEN)
 import re
-from util import check_info, upload_image
+from util import check_info, upload_image, get_dir
 import yaml
 key_cache = {}
 
@@ -23,8 +23,19 @@ def send_help(message):
             + "2. setep yourendpoint\n"\
             + "3. setaki yourAccessKeyId\n"\
             + "4. setaks yourAccessKeySecret\n"\
-            + "5. setpath image_path_on_aliyunOss"
+            + "5. setpath image_path_on_aliyunOss"\
+            + "6. list dir"
     bot.send_message(reply_to_message_id=message.message_id, chat_id=message.chat.id, text=help)
+
+
+@bot.message_handler(commands=['list'])
+def list_dir(message):
+    info = check_info(key_cache, message.chat.id)
+    if info is not None:  # oss error
+        bot.send_message(reply_to_message_id=message.message_id, chat_id=message.chat.id, text=info)
+        return
+    ret = get_dir(key_cache, message)
+    bot.send_message(reply_to_message_id=message.message_id, chat_id=message.chat.id, text=ret)
 
 
 @bot.message_handler(commands=['setaki'])
